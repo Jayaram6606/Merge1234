@@ -9,7 +9,7 @@ def list_tools():
         "tools": [
             {
                 "name": "get_files",
-                "description": "Fetch files (dummy data for testing)",
+                "description": "Fetch files (dummy data)",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -20,13 +20,17 @@ def list_tools():
         ]
     }
 
+# 🔹 Root endpoint (reuse tools)
+@app.get("/")
+def root():
+    return list_tools()
+
 # 🔹 Tool execution
 @app.post("/tools/get_files")
 async def get_files(request: Request):
     body = await request.json()
     page_size = body.get("page_size", 5)
 
-    # ✅ Dummy data
     files = [
         {"name": "report.pdf", "size": "2MB"},
         {"name": "notes.txt", "size": "5KB"},
