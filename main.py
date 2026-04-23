@@ -20,10 +20,19 @@ def list_tools():
         ]
     }
 
-# 🔹 Root endpoint (reuse tools)
+# 🔹 Root endpoint (improved)
 @app.get("/")
 def root():
-    return list_tools()
+    return {
+        "name": "custom-mcp-server",
+        "version": "1.0",
+        "tools": list_tools()["tools"]
+    }
+
+# 🔹 Health endpoint
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 # 🔹 Tool execution
 @app.post("/tools/get_files")
