@@ -10,10 +10,13 @@ def list_tools():
             {
                 "name": "get_files",
                 "description": "Fetch files (dummy data)",
-                "parameters": {
+                "input_schema": {
                     "type": "object",
                     "properties": {
-                        "page_size": {"type": "number"}
+                        "page_size": {
+                            "type": "integer",
+                            "description": "Number of files to return"
+                        }
                     }
                 }
             }
