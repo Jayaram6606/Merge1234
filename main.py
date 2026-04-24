@@ -60,17 +60,13 @@ def generate_tool_definitions():
 # 🔹 Root endpoint
 @app.get("/")
 def root():
-    return {
-        "name": "google-drive-mcp-server",
-        "version": "1.0",
-        "tools": generate_tool_definitions()
-    }
+    return list_tools()
 
 
 # 🔹 Tool discovery endpoint
 @app.get("/tools")
 def list_tools():
-    return {"tools": generate_tool_definitions()}
+    return generate_tool_definitions()
 
 
 # 🔹 Health check
