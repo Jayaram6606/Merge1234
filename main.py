@@ -60,7 +60,9 @@ def generate_tool_definitions():
 # 🔹 Root endpoint
 @app.get("/")
 def root():
-    return list_tools()
+    return {
+        "tools": generate_tool_definitions()
+    }
 
 
 # 🔹 Tool discovery endpoint
@@ -76,7 +78,7 @@ def health():
 
 
 # 🔹 Dynamic tool execution
-@app.post("/tools/{tool_name}")
+@app.post("/tool/{tool_name}")
 async def execute_tool(tool_name: str, request: Request):
     """Execute a tool dynamically based on tool_name"""
     
@@ -151,11 +153,40 @@ async def execute_tool(tool_name: str, request: Request):
         
         # Handle response
         if response.status_code == 204:  # No content (e.g., successful delete)
-            return {"success": True, "message": f"{tool_name} executed successfully"}
+            return {"content": {"success": True, "message": f"{tool_name} executed successfully"}}
         
         response.raise_for_status()
         
-        return response.json()
+        # Parse and format response for LLM
+        data = response.json()
+        
+        # Format based on tool type
+        if tool_name == "list_files":
+            files = data.get("results", [])
+            formatted_files = [
+                {
+                    "name": f.get("name", "Unknown"),
+                    "type": f.get("mime_type", "Unknown"),
+                    "url": f.get("file_url", "")
+                }
+                for f in files
+            ]
+            return {"content": formatted_files}
+        
+        elif tool_name == "get_file":
+            # Return formatted single file metadata
+            return {
+                "content": {
+                    "name": data.get("name", "Unknown"),
+                    "type": data.get("mime_type", "Unknown"),
+                    "url": data.get("file_url", ""),
+                    "size": data.get("size", 0)
+                }
+            }
+        
+        else:
+            # Default: wrap in content
+            return {"content": data.get("results", data)}
     
     except requests.exceptions.HTTPError as e:
         raise HTTPException(
